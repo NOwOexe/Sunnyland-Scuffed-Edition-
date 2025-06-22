@@ -2,6 +2,8 @@ import pygame
 import os
 import constant as const
 from player import *
+from enemy import *
+from load_enemy import *
 
 class Game():
     def __init__(self):
@@ -11,9 +13,11 @@ class Game():
         
         #Player
         player_animation = self.load_player_animation()
-        self.player = Player(player_animation, const.SCREEN_W // 2, const.SCREEN_H // 2)
+        self.player = Player(player_animation, const.SCREEN_W // 2, const.SCREEN_H - player_animation["idle"][0].get_height() + const.PLAYER_OFFSET_H)
         
-        print(player_animation)
+        #Enemy
+        bat_animation = load_bat()
+        self.bat = Enemy(bat_animation, 0, 0)
         
     def change_scale(self, image:pygame.Surface, factor):
         scaled_img = pygame.transform.scale(image, (image.get_width() * factor, image.get_height() * factor))
@@ -22,7 +26,8 @@ class Game():
     def load_player_animation(self):
         animation = {
             "idle" : [],
-            "run" : []
+            "run" : [],
+            "jump" : []
         }
         
         for idle in range(4):
@@ -32,6 +37,10 @@ class Game():
         for run in range(8):
             image = self.change_scale(pygame.image.load(os.path.join(const.PLAYER_PATH, f"run/Sprites/run-{run + 1}.png")), const.PLAYER_FACTOR)
             animation["run"].append(image)
+            
+        for jump in range(5):
+            image = self.change_scale(pygame.image.load(os.path.join(const.PLAYER_PATH, f"jump/Sprites/jump-{jump + 1}.png")), const.PLAYER_FACTOR)
+            animation["jump"].append(image)
             
         return animation
     
@@ -46,6 +55,7 @@ class Game():
             self.player.draw(self.screen)
             self.player.update()
             self.player.move()
+            self.bat.draw(self.screen)
             pygame.display.update()
         pygame.quit()
         
