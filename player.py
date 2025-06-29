@@ -11,6 +11,7 @@ class Player():
         self.frame = 0
         self.update_time = pygame.time.get_ticks()
         self.start_time = pygame.time.get_ticks()
+        self.gravity_time = pygame.time.get_ticks()
         self.speed = const.PLAYER_SPEED
         self.velocity_y = 0
         self.x_pos = float(x)
@@ -31,6 +32,7 @@ class Player():
         dx = 0
         cur_time = pygame.time.get_ticks()
         del_time = (cur_time - self.start_time) / 1000
+        delta_gravity = (cur_time - self.gravity_time) / 1000
         key = pygame.key.get_pressed()
         if key[pygame.K_a]:
             self.is_flipped = True
@@ -55,14 +57,16 @@ class Player():
             
         self.x_pos += dx * self.speed * del_time
         self.rect.x = int(self.x_pos)
-        self.y_pos += self.velocity_y * del_time
+        self.y_pos += self.velocity_y * delta_gravity
         self.rect.y = int(self.y_pos)
         if self.rect.y >= const.SCREEN_H - self.rect.h:
             self.is_ground = True
             self.is_jumping = False
             self.velocity_y = 0
-        self.velocity_y += const.GRAVITY
+        if not self.is_ground:
+            self.velocity_y += const.GRAVITY
         self.start_time = cur_time
+        self.gravity_time = cur_time
         
     def update(self):
         cur_time = pygame.time.get_ticks()

@@ -17,7 +17,14 @@ class Game():
         
         #Enemy
         bat_animation = load_bat()
-        self.bat = Enemy(bat_animation, 0, 0)
+        self.bat = Enemy(bat_animation, 0, 0, "fly")
+        
+        frog_animation = load_frog()
+        self.frog = Enemy(frog_animation, 100, 0, "idle")
+        
+        slime_animation = load_slime()
+        slime_offset = const.SLIME_OFFSET_H
+        self.slime = Slime(slime_animation, 200, const.SCREEN_H - slime_animation["idle"][0].get_height() + slime_offset, "idle")
         
     def change_scale(self, image:pygame.Surface, factor):
         scaled_img = pygame.transform.scale(image, (image.get_width() * factor, image.get_height() * factor))
@@ -56,6 +63,12 @@ class Game():
             self.player.update()
             self.player.move()
             self.bat.draw(self.screen)
+            self.bat.update()
+            self.frog.draw(self.screen)
+            self.frog.update()
+            self.slime.draw(self.screen)
+            self.slime.update()
+            self.slime.move()
             pygame.display.update()
         pygame.quit()
         
