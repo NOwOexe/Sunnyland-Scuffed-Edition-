@@ -1,5 +1,6 @@
 import pygame
 import os
+import json
 import constant as const
 from player import *
 from enemy import *
@@ -27,6 +28,28 @@ class Game():
         self.slime = Slime(slime_animation, 200, const.SCREEN_H - slime_animation["idle"][0].get_height() + slime_offset, "idle")
         
         self.start_time = pygame.time.get_ticks()
+
+        #Test_map
+        with open(os.path.join(const.MAP_PATH, "test_map.json"), "r") as file:
+            data = json.load(file)
+            for tiles in data["layers"][0]["tiles"]:
+                # print(tiles["id"])
+                pass
+
+    def load_map(self):
+        image = pygame.image.load(os.path.join(const.MAP_PATH, "spritesheet.png"))
+        tiles = {
+            "0" : (0, 0, 16, 16),
+            "1" : (16, 0, 32, 16),
+            "2" : (32, 0, 16, 16),
+            "3" : (48, 0, 32, 16)
+        }
+
+        self.screen.blit(image, (200, 200), tiles["3"])
+        for i in range(2):
+            self.screen.blit(image, (100 + 32 * i, 100), tiles[f"{i}"])
+        for i in range(2):
+            self.screen.blit(image, (100 + 32 * i, 100 + 16), tiles[f"{i + 2}"])
         
     def change_scale(self, image:pygame.Surface, factor):
         scaled_img = pygame.transform.scale(image, (image.get_width() * factor, image.get_height() * factor))
@@ -64,6 +87,7 @@ class Game():
                     run = False
             
             self.screen.fill((0, 0, 0))
+            self.load_map()
             self.player.draw(self.screen)
             self.player.update()
             self.player.move()

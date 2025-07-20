@@ -3,6 +3,7 @@ SCREEN_H = 600
 
 PLAYER_PATH = "Assets/Characters/Player/Fiery_Imp/"
 ENEMY_PATH = "Assets/Characters/Enemies/"
+MAP_PATH = "maps/"
 
 PLAYER_FACTOR = 2
 PLAYER_SPEED = 300
