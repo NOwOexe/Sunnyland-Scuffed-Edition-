@@ -28,28 +28,48 @@ class Game():
         self.slime = Slime(slime_animation, 200, const.SCREEN_H - slime_animation["idle"][0].get_height() + slime_offset, "idle")
         
         self.start_time = pygame.time.get_ticks()
-
-        #Test_map
-        with open(os.path.join(const.MAP_PATH, "test_map.json"), "r") as file:
-            data = json.load(file)
-            for tiles in data["layers"][0]["tiles"]:
-                # print(tiles["id"])
-                pass
+        
+        self.data = {}
+        #Map
+        with open(os.path.join(const.MAP_PATH, "map.json"), "r") as file:
+            self.data = json.load(file)
+            
+        self.map = self.load_map()
+        self.map_layer, self.collidable = self.load_layer()
+        self.map_layer.reverse()
 
     def load_map(self):
-        image = pygame.image.load(os.path.join(const.MAP_PATH, "spritesheet.png"))
-        tiles = {
-            "0" : (0, 0, 16, 16),
-            "1" : (16, 0, 32, 16),
-            "2" : (32, 0, 16, 16),
-            "3" : (48, 0, 32, 16)
-        }
-
-        self.screen.blit(image, (200, 200), tiles["3"])
-        for i in range(2):
-            self.screen.blit(image, (100 + 32 * i, 100), tiles[f"{i}"])
-        for i in range(2):
-            self.screen.blit(image, (100 + 32 * i, 100 + 16), tiles[f"{i + 2}"])
+        tile_map = {}
+        
+        original_image = pygame.image.load(os.path.join(const.MAP_PATH, "spritesheet.png")).convert_alpha()
+        original_image = change_scale(original_image, const.MAP_FACTOR)
+        img_w, img_h = original_image.get_size()
+        tile_size = self.data["tileSize"] * const.MAP_FACTOR
+        tile_id = 0
+        for col in range(0, img_h, tile_size):
+            for row in range(0, img_w, tile_size):
+                sub_img = original_image.subsurface(row, col, tile_size, tile_size)
+                tile_map[tile_id] = sub_img
+                tile_id += 1
+        return tile_map
+    
+    def load_layer(self):
+        map_layer = []
+        collidable = []
+        for layers in self.data["layers"]:
+            map_layer.append(layers)
+            if layers["collider"]:
+                for tile in layers["tiles"]:
+                    tile_x, tile_y, tile_size = tile["x"], tile["y"], self.data["tileSize"]
+                    tile_rect = pygame.Rect(tile_x * tile_size, tile_y * tile_size,
+                                            tile_size, tile_size)
+                    collidable.append(tile_rect)
+        return (map_layer, collidable)
+    
+    def draw_map(self):
+        for layer in self.map_layer:
+            for tiles in layer["tiles"]:
+                self.screen.blit(self.map[int(tiles["id"])], (tiles["x"] * const.TILE_SIZE, tiles["y"] * const.TILE_SIZE))
         
     def change_scale(self, image:pygame.Surface, factor):
         scaled_img = pygame.transform.scale(image, (image.get_width() * factor, image.get_height() * factor))
@@ -87,7 +107,7 @@ class Game():
                     run = False
             
             self.screen.fill((0, 0, 0))
-            self.load_map()
+            self.draw_map()
             self.player.draw(self.screen)
             self.player.update()
             self.player.move()
