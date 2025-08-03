@@ -20,19 +20,19 @@ class Player():
         self.is_moving = False
         self.state = "idle"
         self.stop_frame = False
-        self.is_ground = True
+        self.is_ground = False
         self.is_jumping = False
-    
+
     def draw(self, screen):
         flipped_img = pygame.transform.flip(self.image, self.is_flipped, False)
         screen.blit(flipped_img, (self.rect.x - const.PLAYER_OFFSET_X, self.rect.y - const.PLAYER_OFFSET_Y))
         pygame.draw.rect(screen, const.G_COLOR, (self.rect.x, self.rect.y, self.rect.w, self.rect.h), 1)
-        
+
     def move(self):
         dx = 0
         cur_time = pygame.time.get_ticks()
-        del_time = (cur_time - self.start_time) / 1000
-        delta_gravity = (cur_time - self.gravity_time) / 1000
+        del_time = (cur_time - self.start_time) / 1000.0
+        delta_gravity = (cur_time - self.gravity_time) / 1000.0
         key = pygame.key.get_pressed()
         if key[pygame.K_a]:
             self.is_flipped = True
@@ -67,10 +67,10 @@ class Player():
             self.velocity_y += const.GRAVITY
         self.start_time = cur_time
         self.gravity_time = cur_time
-        
+
     def update(self):
         cur_time = pygame.time.get_ticks()
-        del_time = (cur_time - self.update_time) / 1000
+        del_time = (cur_time - self.update_time) / 1000.0
         if del_time > const.ANIMATION_COOLDOWN:
             if self.frame < len(self.animation[self.state]) and not self.is_jumping:
                 self.image = self.animation[self.state][self.frame]
@@ -78,8 +78,28 @@ class Player():
             else:
                 self.frame = 0
             self.update_time = cur_time
-            
+
     def jump(self):
         if self.is_ground:
             self.velocity_y = const.PLAYER_JUMPFORCE
             self.is_ground = False
+            self.is_jumping = True
+
+    def check_collide(self, collidable):
+        for tiles in collidable:
+            if self.rect.colliderect(tiles):
+                if self.rect.bottom > tiles.top and self.rect.top < tiles.top:
+                    self.rect.bottom = tiles.top
+                    self.is_ground = True
+                    self.is_jumping = False
+                    self.velocity_y = 0
+                elif self.rect.top < tiles.bottom and self.rect.bottom > tiles.bottom:
+                    self.rect.top = tiles.bottom
+                    self.velocity_y = 0
+                elif self.rect.right > tiles.left and self.rect.left < tiles.left:
+                    self.rect.right = tiles.left
+                    self.x_pos = float(self.rect.x)
+                elif self.rect.left < tiles.right and self.rect.right > tiles.right:
+                    self.rect.left = tiles.right
+                    self.x_pos = float(self.rect.x)
+            print("heloo world")
