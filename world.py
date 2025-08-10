@@ -50,11 +50,25 @@ class World():
                     collidable.append(tile_rect)
         return (map_layer, collidable)
     
-    def draw_map(self):
+    def get_world_size(self):
+        max_x = 0
+        max_y = 0
+        for layer in self.map_layer:
+            for t in layer["tiles"]:
+                if t["x"] > max_x: max_x = t["x"]
+                if t["y"] > max_y: max_y = t["y"]
+        world_w = (max_x + 1) * const.TILE_SIZE
+        world_h = (max_y + 1) * const.TILE_SIZE
+        return world_w, world_h
+
+    def draw_map(self, camera):
         for layer in self.map_layer:
             for tiles in layer["tiles"]:
-                self.screen.blit(self.map[int(tiles["id"])], (tiles["x"] * const.TILE_SIZE, tiles["y"] * const.TILE_SIZE))
-    
-    def draw_collide(self):
+                sx = tiles["x"] * const.TILE_SIZE - camera.offset.x
+                sy = tiles["y"] * const.TILE_SIZE - camera.offset.y
+                self.screen.blit(self.map[int(tiles["id"])], (sx, sy))
+
+    def draw_collide(self, camera):
         for tiles in self.collidable:
-            pygame.draw.rect(self.screen, const.G_COLOR, tiles, 1)
+            r = tiles.move(-camera.offset.x, -camera.offset.y)
+            pygame.draw.rect(self.screen, const.G_COLOR, r, 1)
