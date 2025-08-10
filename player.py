@@ -74,12 +74,12 @@ class Player():
         self.y_pos += self.velocity_y * delta_gravity
         self.rect.y = int(self.y_pos)
         
-        if self.rect.y >= const.SCREEN_H - self.rect.h:
-            self.rect.y = const.SCREEN_H - self.rect.h
-            self.y_pos = float(self.rect.y)
-            self.velocity_y = 0
-            self.is_ground = True
-            self.is_jumping = False
+        # if self.rect.y >= const.SCREEN_H - self.rect.h:
+        #     self.rect.y = const.SCREEN_H - self.rect.h
+        #     self.y_pos = float(self.rect.y)
+        #     self.velocity_y = 0
+        #     self.is_ground = True
+        #     self.is_jumping = False
             
         if not self.is_ground:
             self.velocity_y += const.GRAVITY * const.FPS_TARGET * delta_gravity
