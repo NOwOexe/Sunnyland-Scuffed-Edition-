@@ -91,6 +91,8 @@ class Game():
             self.slime.draw(self.screen, self.camera)
             self.slime.update()
             self.slime.move(self.player, delta_time)
+            self.slime.check_collide(self.world.collidable)
+            self.slime.gravity(self.world.collidable)
             pygame.display.update()
         pygame.quit()
         

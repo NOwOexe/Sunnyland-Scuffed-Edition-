@@ -55,6 +55,8 @@ class Slime(Enemy):
         self.offset_h = const.SLIME_OFFSET_H
         self.rect.w -= self.offset_w
         self.rect.h -= self.offset_h
+        self.is_ground = False
+        self.start_time = pygame.time.get_ticks()
 
         self.aggro_rect = pygame.Rect(
             x - (const.AGGRO_W - self.rect.w) / 2,
@@ -92,7 +94,21 @@ class Slime(Enemy):
             self.aggro_rect.x = int(self.aggro_pos)
         else:
             self.state = "idle"
-
+            
+    def check_collide(self, collideable):
+        for tiles in collideable:
+            if self.rect.colliderect(tiles):
+                self.is_ground = True
+                self.rect.bottom = tiles.top
+                self.aggro_rect.y = self.rect.y
+                self.aggro_rect.bottom = tiles.top
+    
+    def gravity(self, collidable):
+        cur_time = pygame.time.get_ticks()
+        delta_gravity = (cur_time - self.start_time) / 1000.0
+        if not self.is_ground:
+            self.rect.y += const.GRAVITY * const.FPS_TARGET * delta_gravity
+        
 
 class Bat(Enemy):
     def __init__(self, animation, x, y, state: str):
